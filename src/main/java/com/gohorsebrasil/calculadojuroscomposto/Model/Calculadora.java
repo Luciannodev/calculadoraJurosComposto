@@ -1,9 +1,14 @@
-package com.gohorsebrasil.calculadojuroscomposto;
+package com.gohorsebrasil.calculadojuroscomposto.Model;
+
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+
 
 
 public class Calculadora {
@@ -14,7 +19,6 @@ public class Calculadora {
     private ArrayList<BigDecimal> lucroMensal = new ArrayList<>();
     private int ano;
     private int anoAtual = Calendar.getInstance().getWeekYear();
-    private String nomeclatura;
     private int meses;
     private BigDecimal rentabilidadeMensal;
     private BigDecimal aporteMensal;
@@ -33,7 +37,7 @@ public class Calculadora {
         }
     }
 
-    protected static BigDecimal calculoAcumulado(BigDecimal aporteInicial,
+    private static BigDecimal calculoAcumulado(BigDecimal aporteInicial,
                                                  BigDecimal lucroAnterior, BigDecimal aporteMensal, BigDecimal extra) {
         BigDecimal resultado = lucroAnterior.add(aporteMensal);
         resultado = resultado.add(aporteInicial);
@@ -41,7 +45,7 @@ public class Calculadora {
         return resultado;
     }
 
-    protected ArrayList<BigDecimal> Rotina(int mesesInicial, BigDecimal acumulado, BigDecimal rentabilidadeMensalInserida,
+    public ArrayList<BigDecimal> Rotina(int mesesInicial, BigDecimal acumulado, BigDecimal rentabilidadeMensalInserida,
                                            BigDecimal extrasinserido, BigDecimal aporteMensalInserido, BigDecimal aporteInicial) {
 
         this.meses = mesesInicial;
@@ -52,29 +56,49 @@ public class Calculadora {
         armazenaValor(aporteInicial, extrasinserido);
         this.resultadoMes = calculoAcumulado(aporteInicial, lucroJuros, aporteMensalInserido, extrasinserido);
         armazenaValor(resultadoMes, extrasinserido);
-        RotinadeMeses(resultadoMes, rentabilidadeMensalInserida, extrasinserido, aporteMensalInserido);
+        RotinadeMeses(rentabilidadeMensalInserida, extrasinserido, aporteMensalInserido);
         Exibicao();
         return valorMensal;
     }
 
-    private void Exibicao() {
+    public void Exibicao() {
+
         int countLimit = 0;
         for (BigDecimal valorRendido : valorMensal) {
-            System.out.println("Ano: "+ mesAno.get(countLimit) + " | Mês : " + (meses + 1) + " | ValorTotalMês : " + valorRendido +" | Lucro do Mes: "+ lucroMensal.get(countLimit)+ " | Extras: " + extras.get(extracount));
+            System.out.println("Ano: " + mesAno.get(countLimit) + " | Mês : " + (meses + 1) + " | ValorTotalMês : " + valorRendido + " | Lucro do Mes: " + lucroMensal.get(countLimit) + " | Extras: " + extras.get(extracount));
             meses++;
-            this.extracount ++;
+            this.extracount++;
             countLimit++;
+
         }
     }
 
-    private void RotinadeMeses(BigDecimal acumulado, BigDecimal rentabilidadeMensal, BigDecimal extrasInserido, BigDecimal aporteMensal) {
+    public ArrayList<Simulacao> armazenar() {
+        ArrayList simulacaoArray = new ArrayList();
+        SimpleDateFormat mes = new SimpleDateFormat("MMMM");
+        int contagemMes = 0;
+        String [] mesLiteral = {"janeiro", "fevereiro", "março", "abril","maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"};
+        for (var i= 0 ; i<meses;i++){
+            Simulacao simulacao = new Simulacao(i+1,mesLiteral[contagemMes],mesAno.get(i), lucroMensal.get(i),valorMensal.get(i),extras.get(i));
+            simulacaoArray.add(simulacao);
+            contagemMes++;
+            if(contagemMes >= 12){
+                contagemMes=0;
+            }
+        }
+        return simulacaoArray;
+    }
+
+
+
+    private void RotinadeMeses(BigDecimal rentabilidadeMensal, BigDecimal extrasInserido, BigDecimal aporteMensal) {
         this.extra = extrasInserido;
         while (0 < meses) {
             lucroJuros = calculoDeJuros(resultadoMes, rentabilidadeMensal);
             this.resultadoMes = calculoAcumulado(this.resultadoMes, lucroJuros, aporteMensal, extra);
             armazenaValor(resultadoMes, extra);
         }
-        lucroJuros = calculoDeJuros(resultadoMes,rentabilidadeMensal);
+        lucroJuros = calculoDeJuros(resultadoMes, rentabilidadeMensal);
     }
 
     private void armazenaValor(BigDecimal valor, BigDecimal extra) {
@@ -91,7 +115,7 @@ public class Calculadora {
 
     }
 
-    protected void AporteExtra(int mes, BigDecimal extraInserido) {
+    public void AporteExtra(int mes, BigDecimal extraInserido) {
         ArrayList<BigDecimal> valorMensalNovo = new ArrayList<>();
         ArrayList<BigDecimal> extrasNovo = new ArrayList<>();
         ArrayList<BigDecimal> lucroMensalNovo = new ArrayList<>();
@@ -101,13 +125,13 @@ public class Calculadora {
             lucroMensalNovo.add(lucroMensal.get(i));
         }
         extracount = 0;
-        meses -= mes ;
+        meses -= mes;
         lucroMensal = lucroMensalNovo;
         extras = extrasNovo;
         valorMensal = valorMensalNovo;
         resultadoMes = valorMensal.get(valorMensal.size() - 1);
         anoAtual = Calendar.getInstance().getWeekYear();
-        RotinadeMeses(resultadoMes, rentabilidadeMensal, extraInserido, aporteMensal);
+        RotinadeMeses(rentabilidadeMensal, extraInserido, aporteMensal);
         Exibicao();
     }
 

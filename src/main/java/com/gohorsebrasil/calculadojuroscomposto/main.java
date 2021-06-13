@@ -1,4 +1,6 @@
 package com.gohorsebrasil.calculadojuroscomposto;
+import com.gohorsebrasil.calculadojuroscomposto.Model.Calculadora;
+
 import java.math.BigDecimal;
 
 public class main {
@@ -19,7 +21,6 @@ public class main {
         System.out.println("---------------------------------//------------------------------");
         calculadora.AporteExtra(9,new BigDecimal(5000));
         System.out.println("----------------------//----------------------------------------");
-
    }
 
 
